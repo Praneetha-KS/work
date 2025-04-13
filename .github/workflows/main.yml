@@ -7,15 +7,46 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Checkout the repository code
       - uses: actions/checkout@v3
 
+      # Setup Node.js (you already have this for your JS app)
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '18'
 
+      # Install dependencies (you already have this for your JS app)
       - name: Install dependencies
         run: npm install
 
+      # Run your JS tests (you already have this for your JS app)
       - name: Run tests
         run: npm test
+
+      # Start Minikube (added for Kubernetes testing)
+      - name: Start Minikube
+        uses: medyagh/setup-minikube@latest
+
+      # Try the Kubernetes cluster (added for Kubernetes testing)
+      - name: Try the cluster!
+        run: kubectl get pods -A
+
+      # Build your Docker image using Minikube's Docker environment (added for Kubernetes testing)
+      - name: Build Docker image
+        run: |
+          minikube image build -t local/devex:v1 .
+
+      # Deploy to Minikube (added for Kubernetes testing)
+      - name: Deploy to Minikube
+        run: |
+          kubectl apply -f deploy/k8s.yaml
+          kubectl wait --for=condition=ready pod -l app=local-devex
+
+      # Test your service URLs (added for Kubernetes testing)
+      - name: Test service URLs
+        run: |
+          minikube service list
+          minikube service local-devex-svc --url
+          echo "------------------opening the service------------------"
+          curl $(minikube service local-devex-svc --url)
