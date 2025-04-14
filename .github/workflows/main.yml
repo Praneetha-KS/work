@@ -52,8 +52,13 @@ jobs:
       # Show the logs of the pod (for debugging)
       - name: Show Pod Logs
         run: |
-          kubectl logs -l app=local-devex
+          kubectl logs -l app=local-devex --tail=100
           
+      # Show events related to the pod (for debugging)
+      - name: Show Pod Events
+        run: |
+          kubectl get events --sort-by='.metadata.creationTimestamp'
+
       # Test your service URLs (added for Kubernetes testing)
       - name: Test service URLs
         run: |
