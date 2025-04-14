@@ -38,12 +38,22 @@ jobs:
           minikube image build -t local/devex:v1 .
 
       # Deploy to Minikube (added for Kubernetes testing)
-      # Deploy to Minikube (added for Kubernetes testing)
       - name: Deploy to Minikube
         run: |
           kubectl apply -f deploy/k8s.yaml
           kubectl wait --for=condition=ready pod -l app=local-devex --timeout=180s
 
+      # Check the status of the pod (for debugging)
+      - name: Check Pod Status
+        run: |
+          kubectl get pods -A
+          kubectl describe pod -l app=local-devex
+
+      # Show the logs of the pod (for debugging)
+      - name: Show Pod Logs
+        run: |
+          kubectl logs -l app=local-devex
+          
       # Test your service URLs (added for Kubernetes testing)
       - name: Test service URLs
         run: |
@@ -51,9 +61,3 @@ jobs:
           minikube service local-devex-svc --url
           echo "------------------opening the service------------------"
           curl $(minikube service local-devex-svc --url)
-      - name: Show pod logs (for debugging)
-        run: |
-          kubectl get pods -A
-          kubectl describe pods
-          kubectl logs -l app=local-devex
-
